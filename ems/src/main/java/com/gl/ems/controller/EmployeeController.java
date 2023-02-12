@@ -13,65 +13,61 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import com.gl.ems.model.Employee;
+import com.gl.ems.entity.Employee;
 import com.gl.ems.service.EmployeeService;
 
 
 
 @Controller
 public class EmployeeController {
+	private EmployeeService employeeService;
 
-	@Autowired
-	private EmployeeService service;
-
-	@GetMapping("/")
-	public String home(Model m) {
-		return findPaginated(0, m);
+	public EmployeeController(EmployeeService employeeService) {
+		super();
+		this.employeeService = employeeService;
 	}
 
-	@GetMapping("/addemp")
-	public String addEmpForm() {
-		return "add_emp";
+	@GetMapping("/employees")
+	public String listEmployees(Model model) {
+		List<Employee> employees = employeeService.getAllEmployees();
+		model.addAttribute("employees", employees);
+		return "employees";
 	}
 
-	@PostMapping("/register")
-	public String empRegister(@ModelAttribute Employee e, HttpSession session) {
-		service.addEmp(e);
-		session.setAttribute("msg", "Emplyoee Added Sucessfully..");
-		return "redirect:/";
+	@GetMapping("/employees/{id}")
+	public String deleteEmployee(@PathVariable("id") int id) {
+		employeeService.deleteEmployeeById(id);
+		return "redirect:/employees";
 	}
 
-	@GetMapping("/edit/{id}")
-	public String edit(@PathVariable int id, Model m) {
-		Employee e = service.getEMpById(id);
-		m.addAttribute("emp", e);
-		return "edit";
+	@GetMapping("/employees/new")
+	public String createEmployeeForm(Model model) {
+		Employee employee = new Employee();
+		model.addAttribute("employee", employee);
+		return "create_employee";
 	}
 
-	@PostMapping("/update")
-	public String updateEmp(@ModelAttribute Employee e, HttpSession session) {
-		service.addEmp(e);
-		session.setAttribute("msg", "Emp Data Update Sucessfully..");
-		return "redirect:/";
+	@PostMapping("/employees")
+	public String saveEmployee(@ModelAttribute("employee") Employee employee) {
+		employeeService.insertEmployee(employee);
+		return "redirect:/employees";
 	}
 
-	@GetMapping("/delete/{id}")
-	public String deleteEMp(@PathVariable int id, HttpSession session) {
-
-		service.deleteEMp(id);
-		session.setAttribute("msg", "Emp Data Delete Sucessfully..");
-		return "redirect:/";
+	@GetMapping("/employees/edit/{id}")
+	public String editEmployeeForm(@PathVariable("id") int id, Model model) {
+		Employee employee = employeeService.getEmployeeById(id);
+		model.addAttribute("employee", employee);
+		return "edit_employee";
 	}
 
-	@GetMapping("/page/{pageno}")
-	public String findPaginated(@PathVariable int pageno, Model m) {
-
-		Page<Employee> emplist = service.getEMpByPaginate(pageno, 2);
-		m.addAttribute("emp", emplist);
-		m.addAttribute("currentPage", pageno);
-		m.addAttribute("totalPages", emplist.getTotalPages());
-		m.addAttribute("totalItem", emplist.getTotalElements());
-		return "index";
+	@PostMapping("/employees/{id}")
+	public String updateEmpployee(@PathVariable("id") int id, @ModelAttribute("employee") Employee employee) {
+		Employee existingEmployee = employeeService.getEmployeeById(id);
+		existingEmployee.setFirstName(employee.getFirstName());
+		existingEmployee.setLastName(employee.getLastName());
+		existingEmployee.setEmail(employee.getEmail());
+		employeeService.insertEmployee(existingEmployee);
+		return "redirect:/employees";
 	}
 
 }

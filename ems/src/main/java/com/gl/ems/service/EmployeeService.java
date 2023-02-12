@@ -1,46 +1,20 @@
 package com.gl.ems.service;
 
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import com.gl.ems.entity.Employee;
 
-import com.gl.ems.model.Employee;
-import com.gl.ems.repository.EmployeeRepository;
+public interface EmployeeService {
 
-@Service
-public class EmployeeService {
+	Employee insertEmployee(Employee employee);
 
-	@Autowired
-	private EmployeeRepository repo;
+	void deleteEmployeeById(int id);
 
-	public void addEmp(Employee e) {
-		repo.save(e);
-	}
+	List<Employee> getAllEmployees();
 
-	public List<Employee> getAllEmp() {
-		return repo.findAll();
-	}
+	Employee getEmployeeById(int id);
 
-	public Employee getEMpById(int id) {
-		Optional<Employee> e = repo.findById((long) id);
-		if (e.isPresent()) {
-			return e.get();
-		}
-		return null;
-	}
+	Employee updateEmployee(Employee e);
 
-	public void deleteEMp(int id) {
-		repo.deleteById((long) id);
-	}
-
-	public Page<Employee> getEMpByPaginate(int currentPage, int size) {
-		Pageable p = PageRequest.of(currentPage, size);
-		return repo.findAll(p);
-	}
-
+	
 }
